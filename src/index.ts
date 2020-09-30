@@ -1,14 +1,15 @@
 import express from 'express';
 import dotenv from 'dotenv';
-
 dotenv.config();
-console.log(process.env.PORT);
+
+import './db/mongoose';
+import projectRouter from './routers/project';
+
 const app = express();
 const port = process.env.PORT;
 
-app.get('/temp', (req, res) => {
-  res.send('Hello world!');
-});
+app.use(express.json());
+app.use(projectRouter);
 
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);

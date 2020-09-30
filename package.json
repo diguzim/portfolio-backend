@@ -1,12 +1,13 @@
 {
   "name": "portfolio-backend",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "This is portfolio's project backend",
-  "main": "index.js",
+  "main": "src/index.ts",
   "scripts": {
     "start:dev": "nodemon",
     "build": "rimraf ./build && tsc",
     "start": "npm run build && node build/index.js",
+    "start:database": "mongod --dbpath=$HOME/mongodb-data",
     "lint": "eslint ./src --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write"
@@ -15,6 +16,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/express": "^4.17.8",
+    "@types/mongoose": "^5.7.36",
     "@types/node": "^14.6.4",
     "@typescript-eslint/eslint-plugin": "^4.0.1",
     "@typescript-eslint/parser": "^4.0.1",
@@ -29,6 +31,8 @@
   },
   "dependencies": {
     "dotenv": "^8.2.0",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "mongodb": "^3.6.1",
+    "mongoose": "^5.10.3"
   }
 }
