@@ -1,9 +1,16 @@
-import express from 'express';
+import express, { Request } from 'express';
 import { Project } from '../models';
 
 const router = express.Router();
 
-router.get('/projects', async (req, res) => {
+function isValidOperation(body: Request) {
+  const allowedUpdates = ['name'];
+
+  const updates = Object.keys(body);
+  return updates.every((update) => allowedUpdates.includes(update));
+}
+
+router.get('/projects', async (_req, res) => {
   try {
     const projects = await Project.find();
     res.status(200).send(projects);
@@ -19,7 +26,7 @@ router.get('/projects/:id', async (req, res) => {
     const project = await Project.findById(id);
 
     if (!project) {
-      res.status(404).send();
+      return res.status(404).send();
     }
 
     res.status(200).send(project);
@@ -29,7 +36,14 @@ router.get('/projects/:id', async (req, res) => {
 });
 
 router.post('/projects', async (req, res) => {
-  const project = new Project(req.body);
+  const { body } = req;
+
+  const isValid = isValidOperation(body);
+  if (!isValid) {
+    return res.status(400).send({ error: 'Invalid fields' });
+  }
+
+  const project = new Project(body);
 
   try {
     await project.save();
@@ -39,16 +53,24 @@ router.post('/projects', async (req, res) => {
   }
 });
 
-router.put('/projects/:id', async (req, res) => {
-  const { id } = req.params;
+router.patch('/projects/:id', async (req, res) => {
+  const { body, params } = req;
+  const { id } = params;
+
+  const isValid = isValidOperation(body);
+  if (!isValid) {
+    return res.status(400).send({ error: 'Invalid fields' });
+  }
 
   try {
-    const project = await Project.findByIdAndUpdate(id, req.body);
-    if (!project) {
-      res.status(404).send();
+    const project = await Project.findByIdAndUpdate(id, body);
+
+    if (project === null) {
+      return res.status(404).send();
     }
-    await project?.save();
-    res.status(200).send(project);
+
+    await project.save();
+    res.status(204).send();
   } catch (e) {
     res.status(400).send(e);
   }
@@ -61,7 +83,7 @@ router.delete('/projects/:id', async (req, res) => {
     const project = await Project.findByIdAndDelete(id);
 
     if (!project) {
-      res.status(404).send();
+      return res.status(404).send();
     }
 
     res.status(200).send(project);
